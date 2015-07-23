@@ -1,0 +1,60 @@
+#!/bin/sh
+
+export OTAURL="http://<YOUR IP ADDRESS>:8888/<YOUR PROJECT NAME>"
+export OTASmallIcon=icon.png
+export OTALargeIcon=icon.png
+export OTADeployPath=~/Documents/JenkinsBuilds/<YOUR PROJECT NAME>
+export OTATitle=<YOUR PROJECT TITLE>
+
+cp build/<YOUR PROJECT NAME>/Build/Products/Release-iphoneos/*.ipa $OTADeployPath/<YOUR PROJECT NAME>.ipa
+export info_plist=$(ls <YOUR PROJECT NAME>/<YOUR PROJECT NAME>-Info.plist | sed -e 's/\.plist//')
+export bundle_version=$(defaults read $WORKSPACE/$info_plist CFBundleVersion)
+cat << EOF > $OTADeployPath/<YOUR PROJECT NAME>.plist
+<xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+<key>items</key>
+<array>
+<dict>
+<key>assets</key>
+<array>
+<dict>
+<key>kind</key>
+<string>software-package</string>
+<key>url</key>
+<string>$OTAURL/<YOUR PROJECT NAME>.ipa</string>
+</dict>
+<dict>
+<key>kind</key>
+<string>display-image</string>
+<key>needs-shine</key>
+<true/>
+<key>url</key>
+<string>$OTAURL/icon.pn</string>
+</dict>
+<dict>
+<key>kind</key>
+<string>full-size-image</string>
+<key>needs-shine</key>
+<true/>
+<key>url</key>
+<string>$OTAURL/icon.png</string>
+</dict>
+</array>
+<key>metadata</key>
+<dict>
+<key>bundle-identifier</key>
+<string>com.<YOURAPPLEID>.<YOUR PROJECT NAME></string>
+<key>bundle-version</key>
+<string>$bundle_version</string>
+<key>kind</key>
+<string>software</string>
+<key>title</key>
+<string>$OTATitle</string>
+</dict>
+</dict>
+</array>
+</dict>
+</plist>
+EOF
